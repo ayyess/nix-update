@@ -36,10 +36,15 @@ def replace_version(package: Package) -> bool:
     if changed:
         info(f"Update {old_version} -> {new_version} in {package.filename}")
         with fileinput.FileInput(package.filename, inplace=True) as f:
-            for line in f:
+            for i, line in enumerate(f, 1):
                 if package.new_version.rev:
                     line = line.replace(package.rev, package.new_version.rev)
-                print(line.replace(f'"{old_version}"', f'"{new_version}"'), end="")
+                if (
+                    package.version_position is None
+                    or package.version_position.line == i
+                ):
+                    line = line.replace(f'"{old_version}"', f'"{new_version}"')
+                print(line, end="")
     else:
         info(f"Not updating version, already {old_version}")
 
